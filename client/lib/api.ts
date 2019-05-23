@@ -27,6 +27,11 @@ class API {
     return this.request<Post>('GET', `/posts/${id}`);
   }
 
+  getPostsWebSocket() {
+    let wsUrl = this.url.replace('https', 'wss').replace('http', 'ws');
+    return new WebSocket(`${wsUrl}/posts`);
+  }
+
   // Internal fetch function. Makes a request to the server, and either returns
   // JSON parsed data from the request, or throws an error.
   protected request<R extends object>(
