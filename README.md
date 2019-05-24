@@ -1,6 +1,6 @@
 # Lightning App Tutorial
 
-This is the code for the [Lightning App Tutorial: Part 1]() post. If you're not following along with that, here are some basic setup instructions.
+This is the code for the [Lightning App Tutorial: Part 1](https://medium.com/p/4a13c82f3f78) post. If you're not following along with that, here are some basic setup instructions.
 
 ## Requirements
 
