@@ -1,5 +1,5 @@
 import React from 'react';
-import { Spinner, Card, CardTitle, CardBody, CardText, Alert } from 'reactstrap';
+import { Spinner, Card, CardTitle, CardBody, CardText, Alert, Jumbotron } from 'reactstrap';
 import { Post } from 'types';
 import api from 'lib/api';
 
@@ -36,7 +36,12 @@ export default class Posts extends React.Component<{}, State> {
           </Card>
         ));
       } else {
-        content = <h1>No posts yet!</h1>;
+        content = (
+          <Jumbotron>
+            <h2 className="text-center">No posts yet.</h2>
+            <p className="text-center">Why not be the first?</p>
+          </Jumbotron>
+        );
       }
     } else if (isFetching) {
       content = <Spinner size="lg" />;

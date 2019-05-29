@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import { Invoice, Readable } from '@radar/lnrpc';
 import env from './env';
 import { node, initNode } from './node';
-import { addPost, getPost, getPaidPosts, markPostPaid } from './posts';
+import postsManager from './posts';
 
 // Configure server
 const app = express();
@@ -14,11 +14,11 @@ app.use(bodyParser.json());
 
 // Routes
 app.get('/api/posts', (req, res) => {
-  res.json({ data: getPaidPosts() });
+  res.json({ data: postsManager.getPaidPosts() });
 });
 
 app.get('/api/posts/:id', (req, res) => {
-  const post = getPost(parseInt(req.params.id, 10));
+  const post = postsManager.getPost(parseInt(req.params.id, 10));
   if (post) {
     res.json({ data: post });
   } else {
@@ -34,7 +34,7 @@ app.post('/api/posts', async (req, res, next) => {
       throw new Error('Fields name and content are required to make a post');
     }
 
-    const post = addPost(name, content);
+    const post = postsManager.addPost(name, content);
     const invoice = await node.addInvoice({
       memo: `Lightning Posts post #${post.id}`,
       value: content.length,
@@ -77,6 +77,6 @@ initNode().then(() => {
     if (!id) return;
 
     // Mark the invoice as paid!
-    markPostPaid(id);
+    postsManager.markPostPaid(id);
   });
 });
