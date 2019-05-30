@@ -50,9 +50,11 @@ class PostsManager extends EventEmitter {
     }
   }
 
-  // Return posts that have been paid for
+  // Return posts that have been paid for in time order
   getPaidPosts() {
-    return this.posts.filter(p => !!p.hasPaid);
+    return this.posts
+      .filter(p => !!p.hasPaid)
+      .sort((a, b) => b.time - a.time);
   }
 }
 
