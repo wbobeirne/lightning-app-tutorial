@@ -3,7 +3,7 @@
 This is a step-by-step tutorial project for learning to build Lightning applications. It's broken out into 5 parts, which you can find as separate posts on Medium and branches here on GitHub.
 
 * [Part 1 - Connecting to your Node](https://medium.com/p/4a13c82f3f78) ([`part-1` branch](https://github.com/wbobeirne/lightning-app-tutorial/tree/part-1))
-* Part 2 - Receiving Payments (Coming soon!)
+* [Part 2 - Receiving Payments](https://medium.com/@wbobeirne/making-a-lightning-web-app-part-2-414f5d23c2d7) ([`part-2` branch](https://github.com/wbobeirne/lightning-app-tutorial/tree/part-2))
 * Part 3 - Instant Updates w/ Websockets (Coming soon!)
 * Part 4 - Integrating WebLN (Coming soon!)
 * Part 5 - Launching to Production (Coming soon!)
