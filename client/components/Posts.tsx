@@ -1,51 +1,31 @@
 import React from 'react';
-import { Spinner, Card, CardTitle, CardBody, CardText, Alert } from 'reactstrap';
+import { Card, CardTitle, CardBody, CardText, Jumbotron } from 'reactstrap';
 import { Post } from 'types';
-import api from 'lib/api';
 
-interface State {
-  posts: null | Post[];
-  isFetching: boolean;
-  error: null | string;
+interface Props {
+  posts: Post[];
 }
 
-export default class Posts extends React.Component<{}, State> {
-  state: State = {
-    posts: null,
-    isFetching: false,
-    error: null,
-  };
-
-  // As soon as this component mounts, start fetching posts
-  componentDidMount() {
-    this.getPosts();
-  }
-
+export default class Posts extends React.Component<Props> {
   render() {
-    const { posts, isFetching, error } = this.state;
+    const { posts } = this.props;
 
     let content;
-    if (posts) {
-      if (posts.length) {
-        content = posts.map(p => (
-          <Card key={p.id}>
-            <CardBody>
-              <CardTitle tag="h4">{p.name} says:</CardTitle>
-              <CardText>{p.content}</CardText>
-            </CardBody>
-          </Card>
-        ));
-      } else {
-        content = <h1>No posts yet!</h1>;
-      }
-    } else if (isFetching) {
-      content = <Spinner size="lg" />;
-    } else if (error) {
+    if (posts.length) {
+      content = posts.map(p => (
+        <Card key={p.id} className="mb-3">
+          <CardBody>
+            <CardTitle tag="h4">{p.name} says:</CardTitle>
+            <CardText>{p.content}</CardText>
+          </CardBody>
+        </Card>
+      ));
+    } else {
       content = (
-        <Alert color="danger">
-          <h4 className="alert-heading">Failed to fetch posts</h4>
-          <p>{error}. <a onClick={this.getPosts}>Click here</a> to try again.</p>
-        </Alert>
+        <Jumbotron>
+          <h2 className="text-center">No posts yet.</h2>
+          <p className="text-center">Why not be the first?</p>
+        </Jumbotron>
       );
     }
 
@@ -56,21 +36,4 @@ export default class Posts extends React.Component<{}, State> {
       </>
     );
   }
-
-  // Fetch posts from the API and update state
-  private getPosts = () => {
-    this.setState({ isFetching: true });
-    api.getPosts().then(posts => {
-      this.setState({
-        posts,
-        isFetching: false,
-      });
-    })
-    .catch(err => {
-      this.setState({
-        error: err.message,
-        isFetching: false,
-      })
-    });
-  };
 }

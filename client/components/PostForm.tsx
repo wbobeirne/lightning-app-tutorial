@@ -13,6 +13,10 @@ import {
 import api from 'lib/api';
 import { Post } from 'types';
 
+interface Props {
+  posts: Post[];
+}
+
 interface State {
   name: string;
   content: string;
@@ -22,14 +26,29 @@ interface State {
   error: null | string;
 }
 
-export default class PostForm extends React.Component<{}, State> {
-  state: State = {
-    name: '',
-    content: '',
-    isPosting: false,
-    pendingPost: null,
-    paymentRequest: null,
-    error: null,
+const INITIAL_STATE: State = {
+  name: '',
+  content: '',
+  isPosting: false,
+  pendingPost: null,
+  paymentRequest: null,
+  error: null,
+};
+
+export default class PostForm extends React.Component<Props, State> {
+  state = { ...INITIAL_STATE };
+
+  componentDidUpdate() {
+    const { posts } = this.props;
+    const { pendingPost } = this.state;
+
+    // Reset the form if our pending post comes in
+    if (pendingPost) {
+      const hasPosted = !!posts.find(p => pendingPost.id === p.id);
+      if (hasPosted) {
+        this.setState({ ...INITIAL_STATE });
+      }
+    }
   }
 
   render() {
@@ -126,29 +145,11 @@ export default class PostForm extends React.Component<{}, State> {
           pendingPost: res.post,
           paymentRequest: res.paymentRequest,
         });
-        this.checkIfPaid();
       }).catch(err => {
         this.setState({
           isPosting: false,
           error: err.message,
         })
       });
-  };
-
-  // Check if they've paid their invoice after a delay. Check again if they
-  // haven't paid yet. Reload the page if they have.
-  private checkIfPaid = () => {
-    setTimeout(() => {
-      const { pendingPost } = this.state;
-      if (!pendingPost) return;
-
-      api.getPost(pendingPost.id).then(p => {
-        if (p.hasPaid) {
-          window.location.reload();
-        } else {
-          this.checkIfPaid();
-        }
-      });
-    }, 1000);
   };
 }
