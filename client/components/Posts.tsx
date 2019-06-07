@@ -13,7 +13,7 @@ export default class Posts extends React.Component<Props> {
     let content;
     if (posts.length) {
       content = posts.map(p => (
-        <Card key={p.id}>
+        <Card key={p.id} className="mb-3">
           <CardBody>
             <CardTitle tag="h4">{p.name} says:</CardTitle>
             <CardText>{p.content}</CardText>

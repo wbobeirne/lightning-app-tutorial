@@ -42,7 +42,9 @@ export default class App extends React.Component<State> {
       try {
         const msg = JSON.parse(ev.data.toString());
         if (msg && msg.type === 'post') {
-          this.setState({ posts: [...this.state.posts, msg.data] });
+          const posts = [...this.state.posts, msg.data]
+            .sort((a, b) => b.time - a.time);
+          this.setState({ posts });
         }
       } catch(err) {
         console.error(err);

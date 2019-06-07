@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 import { Invoice, Readable } from '@radar/lnrpc';
 import env from './env';
 import { node, initNode } from './node';
-import posts from './posts';
+import postsManager from './posts';
 
 // Configure server
 const app = expressWs(express()).app;
@@ -16,7 +16,8 @@ app.use(bodyParser.json());
 // API Routes
 app.ws('/api/posts', (ws) => {
   // Send all the posts we have initially
-  posts.getPaidPosts().forEach(post => {
+  postsManager.getPaidPosts().forEach(post => {
+    console.log(post);
     ws.send(JSON.stringify({
       type: 'post',
       data: post,
@@ -31,7 +32,7 @@ app.ws('/api/posts', (ws) => {
       data: post,
     }));
   };
-  posts.addListener('post', postListener);
+  postsManager.addListener('post', postListener);
 
   // Keep-alive by pinging every 10s
   const pingInterval = setInterval(() => {
@@ -40,17 +41,17 @@ app.ws('/api/posts', (ws) => {
 
   // Stop listening if they close the connection
   ws.addEventListener('close', () => {
-    posts.removeListener('post', postListener);
+    postsManager.removeListener('post', postListener);
     clearInterval(pingInterval);
   });
 });
 
 app.get('/api/posts', (req, res) => {
-  res.json({ data: posts.getPaidPosts() });
+  res.json({ data: postsManager.getPaidPosts() });
 });
 
 app.get('/api/posts/:id', (req, res) => {
-  const post = posts.getPost(parseInt(req.params.id, 10));
+  const post = postsManager.getPost(parseInt(req.params.id, 10));
   if (post) {
     res.json({ data: post });
   } else {
@@ -66,7 +67,7 @@ app.post('/api/posts', async (req, res, next) => {
       throw new Error('Fields name and content are required to make a post');
     }
 
-    const post = posts.addPost(name, content);
+    const post = postsManager.addPost(name, content);
     const invoice = await node.addInvoice({
       memo: `Lightning Posts post #${post.id}`,
       value: content.length,
@@ -109,6 +110,6 @@ initNode().then(() => {
     if (!id) return;
 
     // Mark the invoice as paid!
-    posts.markPostPaid(id);
+    postsManager.markPostPaid(id);
   });
 });
