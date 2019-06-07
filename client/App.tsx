@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Spinner, Alert, Button } from 'reactstrap';
+import ReactWebLNFallback from 'react-webln-fallback-reactstrap';
 import PostForm from 'components/PostForm';
 import Posts from 'components/Posts';
 import api from 'lib/api';
@@ -101,6 +102,7 @@ export default class App extends React.Component<State> {
             </Col>
           </Row>
         </Container>
+        <ReactWebLNFallback />
       </div>
     );
   }

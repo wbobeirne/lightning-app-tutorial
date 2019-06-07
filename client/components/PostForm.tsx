@@ -10,6 +10,8 @@ import {
   Alert,
   Spinner,
 } from 'reactstrap';
+import { requestProvider } from 'webln';
+import { paymentComplete } from 'react-webln-fallback-reactstrap';
 import api from 'lib/api';
 import { Post } from 'types';
 
@@ -22,7 +24,6 @@ interface State {
   content: string;
   isPosting: boolean;
   pendingPost: null | Post;
-  paymentRequest: null | string;
   error: null | string;
 }
 
@@ -31,12 +32,12 @@ const INITIAL_STATE: State = {
   content: '',
   isPosting: false,
   pendingPost: null,
-  paymentRequest: null,
   error: null,
 };
 
 export default class PostForm extends React.Component<Props, State> {
   state = { ...INITIAL_STATE };
+
 
   componentDidUpdate() {
     const { posts } = this.props;
@@ -46,72 +47,15 @@ export default class PostForm extends React.Component<Props, State> {
     if (pendingPost) {
       const hasPosted = !!posts.find(p => pendingPost.id === p.id);
       if (hasPosted) {
+        paymentComplete(pendingPost.content);
         this.setState({ ...INITIAL_STATE });
       }
     }
   }
 
   render() {
-    const { name, content, isPosting, error, paymentRequest } = this.state;
+    const { name, content, isPosting, error } = this.state;
     const disabled = !content.length || !name.length || isPosting;
-
-    let cardContent;
-    if (paymentRequest) {
-      cardContent = (
-        <div className="PostForm-pay">
-          <FormGroup>
-            <Input
-              value={paymentRequest}
-              type="textarea"
-              rows="5"
-              disabled
-            />
-          </FormGroup>
-          <Button color="primary" block href={`lightning:${paymentRequest}`}>
-            Open in Wallet
-          </Button>
-        </div>
-      );
-    } else {
-      cardContent = (
-        <Form onSubmit={this.handleSubmit}>
-          <FormGroup>
-            <Input
-              name="name"
-              value={name}
-              placeholder="Name"
-              onChange={this.handleChange}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Input
-              name="content"
-              value={content}
-              type="textarea"
-              rows="5"
-              placeholder="Content (1 sat per character)"
-              onChange={this.handleChange}
-            />
-          </FormGroup>
-
-          {error && (
-            <Alert color="danger">
-              <h4 className="alert-heading">Failed to submit post</h4>
-              <p>{error}</p>
-            </Alert>
-          )}
-
-          <Button color="primary" size="lg" type="submit" block disabled={disabled}>
-            {isPosting ? (
-              <Spinner size="sm" />
-            ) : (
-              <>Submit <small>({content.length} sats)</small></>
-            )}
-          </Button>
-        </Form>
-      );
-    }
 
     return (
       <Card className="mb-4">
@@ -119,7 +63,42 @@ export default class PostForm extends React.Component<Props, State> {
           Submit a Post
         </CardHeader>
         <CardBody>
-          {cardContent}
+          <Form onSubmit={this.handleSubmit}>
+            <FormGroup>
+              <Input
+                name="name"
+                value={name}
+                placeholder="Name"
+                onChange={this.handleChange}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Input
+                name="content"
+                value={content}
+                type="textarea"
+                rows="5"
+                placeholder="Content (1 sat per character)"
+                onChange={this.handleChange}
+              />
+            </FormGroup>
+
+            {error && (
+              <Alert color="danger">
+                <h4 className="alert-heading">Failed to submit post</h4>
+                <p>{error}</p>
+              </Alert>
+            )}
+
+            <Button color="primary" size="lg" type="submit" block disabled={disabled}>
+              {isPosting ? (
+                <Spinner size="sm" />
+              ) : (
+                <>Submit <small>({content.length} sats)</small></>
+              )}
+            </Button>
+          </Form>
         </CardBody>
       </Card>
     );
@@ -129,7 +108,7 @@ export default class PostForm extends React.Component<Props, State> {
     this.setState({ [ev.target.name]: ev.target.value } as any);
   };
 
-  private handleSubmit = (ev: React.FormEvent) => {
+  private handleSubmit = async (ev: React.FormEvent) => {
     const { name, content } = this.state;
     ev.preventDefault();
 
@@ -138,18 +117,15 @@ export default class PostForm extends React.Component<Props, State> {
       error: null,
     });
 
-    api.submitPost(name, content)
-      .then(res => {
-        this.setState({
-          isPosting: false,
-          pendingPost: res.post,
-          paymentRequest: res.paymentRequest,
-        });
-      }).catch(err => {
-        this.setState({
-          isPosting: false,
-          error: err.message,
-        })
+    try {
+      const res = await api.submitPost(name, content);
+      const webln = await requestProvider();
+      await webln.sendPayment(res.paymentRequest);
+    } catch(err) {
+      this.setState({
+        isPosting: false,
+        error: err.message,
       });
+    }
   };
 }
