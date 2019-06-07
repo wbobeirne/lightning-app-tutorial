@@ -42,6 +42,7 @@ export default class App extends React.Component<State> {
       try {
         const msg = JSON.parse(ev.data.toString());
         if (msg && msg.type === 'post') {
+          // Add new post, sort them by most recent
           const posts = [...this.state.posts, msg.data]
             .sort((a, b) => b.time - a.time);
           this.setState({ posts });
