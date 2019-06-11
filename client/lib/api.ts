@@ -11,11 +11,11 @@ class API {
   }
 
   // Public methods
-  submitPost(name: string, content: string) {
+  submitPost(name: string, content: string, signature?: string) {
     return this.request<{ post: Post; paymentRequest: string; }>(
       'POST',
       '/posts',
-      { name, content },
+      { name, content, signature },
     );
   }
 

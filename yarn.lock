@@ -4750,22 +4750,22 @@ react-transition-group@^2.3.1:
     prop-types "^15.6.2"
     react-lifecycles-compat "^3.0.4"
 
-react-webln-fallback-core@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/react-webln-fallback-core/-/react-webln-fallback-core-0.1.1.tgz#ca8040afa0e0e61289127e5698562e527de10073"
-  integrity sha512-hfc9IctwX4w97LjdpxXbmlGlbFktECzUqcWwIAXhhncW8nNEKF9sXhdUcWfPmJc3FvXOpEqApTCFc/qDe1ndhw==
+react-webln-fallback-core@0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/react-webln-fallback-core/-/react-webln-fallback-core-0.1.3.tgz#47ba46fa2b7f3deb7932147371e526f1e9151604"
+  integrity sha512-apSswT4i4sVheNqYGmYg9N00bU5X8aUAX9ltwiU786Kz4eyEvzPFjCNtNcAcbbu5HMVHvSgOUCEGnLUFBwf0sQ==
   dependencies:
     i18next "15.0.9"
     i18next-browser-languagedetector "3.0.1"
 
-react-webln-fallback-reactstrap@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/react-webln-fallback-reactstrap/-/react-webln-fallback-reactstrap-0.1.1.tgz#b488f42c98f7e41fdd6575556d1f593ef76428a6"
-  integrity sha512-cwDRnm0dLIBGayItzlAcF5xOEfhZzqvg75+d+GM+uA8LPvN9Sok2q7CLomHh6x+SQtMIQOiv7TpAliqpmKYGIg==
+react-webln-fallback-reactstrap@0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/react-webln-fallback-reactstrap/-/react-webln-fallback-reactstrap-0.1.4.tgz#2645ce78eb6cd5649a0aea680b356fc38a160340"
+  integrity sha512-s/NkgfqTIt66qBCGC7S5sxPrRCt0fJ7ixvZJlBu1ySJlDGiJIfTFwmKnIqBuYJdvbyiytf39O3kgbIy1NvAXng==
   dependencies:
     "@types/i18next" "12.1.0"
     qrcode.react "0.9.3"
-    react-webln-fallback-core "0.1.1"
+    react-webln-fallback-core "0.1.3"
     ts-loader "5.3.3"
     webpack "4.30.0"
     webpack-cli "3.3.0"

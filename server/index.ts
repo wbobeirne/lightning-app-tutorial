@@ -17,7 +17,6 @@ app.use(bodyParser.json());
 app.ws('/api/posts', (ws) => {
   // Send all the posts we have initially
   postsManager.getPaidPosts().forEach(post => {
-    console.log(post);
     ws.send(JSON.stringify({
       type: 'post',
       data: post,
@@ -61,13 +60,29 @@ app.get('/api/posts/:id', (req, res) => {
 
 app.post('/api/posts', async (req, res, next) => {
   try {
-    const { name, content } = req.body;
+    const { name, content, signature } = req.body;
 
     if (!name || !content) {
       throw new Error('Fields name and content are required to make a post');
     }
 
-    const post = postsManager.addPost(name, content);
+    // Verify signature, if provided. Throw if it doesn't verify.
+    if (signature) {
+      try {
+        const res = await node.verifyMessage({
+          msg: Buffer.from(content),
+          signature,
+        });
+        if (!res.valid) {
+          throw new Error('res.valid is false');
+        }
+      } catch(err) {
+        console.warn('verifyMessage failed with error', err);
+        throw new Error('Invalid signature for the content provided');
+      }
+    }
+
+    const post = postsManager.addPost(name, content, signature);
     const invoice = await node.addInvoice({
       memo: `Lightning Posts post #${post.id}`,
       value: content.length,

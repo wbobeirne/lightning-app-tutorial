@@ -7,6 +7,7 @@ import {
   FormGroup,
   Input,
   Button,
+  ButtonGroup,
   Alert,
   Spinner,
 } from 'reactstrap';
@@ -22,7 +23,9 @@ interface Props {
 interface State {
   name: string;
   content: string;
+  signature: string | undefined;
   isPosting: boolean;
+  isSigning: boolean;
   pendingPost: null | Post;
   error: null | string;
 }
@@ -30,7 +33,9 @@ interface State {
 const INITIAL_STATE: State = {
   name: '',
   content: '',
+  signature: undefined,
   isPosting: false,
+  isSigning: false,
   pendingPost: null,
   error: null,
 };
@@ -47,14 +52,14 @@ export default class PostForm extends React.Component<Props, State> {
     if (pendingPost) {
       const hasPosted = !!posts.find(p => pendingPost.id === p.id);
       if (hasPosted) {
-        paymentComplete(pendingPost.content);
+        paymentComplete('preimage goes here');
         this.setState({ ...INITIAL_STATE });
       }
     }
   }
 
   render() {
-    const { name, content, isPosting, error } = this.state;
+    const { name, content, signature, isPosting, isSigning, error } = this.state;
     const disabled = !content.length || !name.length || isPosting;
 
     return (
@@ -70,6 +75,7 @@ export default class PostForm extends React.Component<Props, State> {
                 value={name}
                 placeholder="Name"
                 onChange={this.handleChange}
+                disabled={isPosting}
               />
             </FormGroup>
 
@@ -81,6 +87,7 @@ export default class PostForm extends React.Component<Props, State> {
                 rows="5"
                 placeholder="Content (1 sat per character)"
                 onChange={this.handleChange}
+                disabled={isPosting || isSigning}
               />
             </FormGroup>
 
@@ -91,13 +98,36 @@ export default class PostForm extends React.Component<Props, State> {
               </Alert>
             )}
 
-            <Button color="primary" size="lg" type="submit" block disabled={disabled}>
-              {isPosting ? (
-                <Spinner size="sm" />
-              ) : (
-                <>Submit <small>({content.length} sats)</small></>
-              )}
-            </Button>
+            <div>
+              <Button
+                className="mr-2"
+                size="lg"
+                color="primary"
+                type="submit"
+                disabled={disabled}
+              >
+                {isPosting ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <>Submit <small>({content.length} sats)</small></>
+                )}
+              </Button>
+              <Button
+                size="lg"
+                color="secondary"
+                outline
+                disabled={isSigning || !content.length}
+                onClick={this.signMessage}
+              >
+                {isSigning ? (
+                  <Spinner size="sm" />
+                ) : signature ? (
+                  <>Message signed ✅</>
+                ) : (
+                  <>Sign content</>
+                )}
+              </Button>
+            </div>
           </Form>
         </CardBody>
       </Card>
@@ -106,10 +136,33 @@ export default class PostForm extends React.Component<Props, State> {
 
   private handleChange = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     this.setState({ [ev.target.name]: ev.target.value } as any);
+
+    // Reset signature if they change content
+    if (this.state.signature && ev.target.name === 'content') {
+      this.setState({ signature: undefined });
+    }
+  };
+
+  private signMessage = async () => {
+    this.setState({ isSigning: true });
+
+    try {
+      const webln = await requestProvider();
+      const sig = await webln.signMessage(this.state.content);
+      this.setState({
+        isSigning: false,
+        signature: sig.signature
+      });
+    } catch(err) {
+      this.setState({
+        isSigning: false,
+        error: err.message,
+      });
+    }
   };
 
   private handleSubmit = async (ev: React.FormEvent) => {
-    const { name, content } = this.state;
+    const { name, content, signature } = this.state;
     ev.preventDefault();
 
     this.setState({
@@ -118,11 +171,15 @@ export default class PostForm extends React.Component<Props, State> {
     });
 
     try {
-      const res = await api.submitPost(name, content);
+      // API request to setup post for payment
+      const res = await api.submitPost(name, content, signature);
+      this.setState({ pendingPost: res.post });
+      // WebLN payment request
       const webln = await requestProvider();
       await webln.sendPayment(res.paymentRequest);
     } catch(err) {
       this.setState({
+        pendingPost: null,
         isPosting: false,
         error: err.message,
       });

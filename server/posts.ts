@@ -10,6 +10,7 @@ export interface Post {
   time: number;
   name: string;
   content: string;
+  signature?: string;
   hasPaid: boolean;
 };
 
@@ -17,10 +18,11 @@ class PostsManager extends EventEmitter {
   posts: Post[] = [];
 
   // Add a new post to the list
-  addPost(name: string, content: string): Post {
+  addPost(name: string, content: string, signature?: string): Post {
     const post = {
       name,
       content,
+      signature,
       id: Math.floor(Math.random() * 100000000) + 1000,
       time: Date.now(),
       hasPaid: false,

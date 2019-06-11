@@ -4,6 +4,7 @@ export interface Post {
   id: number;
   name: string;
   content: string;
+  signature?: string;
   time: number;
   hasPaid: boolean;
 }

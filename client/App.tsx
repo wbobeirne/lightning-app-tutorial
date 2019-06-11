@@ -55,10 +55,16 @@ export default class App extends React.Component<State> {
 
     // Handle closes and errors
     socket.addEventListener('close', () => {
-      this.setState({ error: new Error('Connection to server closed unexpectedly.') });
+      this.setState({
+        isConnecting: false,
+        error: new Error('Connection to server closed unexpectedly.'),
+      });
     });
     socket.addEventListener('error', (ev) => {
-      this.setState({ error: new Error('There was an error, see your console for more information.') });
+      this.setState({
+        isConnecting: false,
+        error: new Error('There was an error, see your console for more information.'),
+      });
       console.error(ev);
     });
   };
