@@ -19,6 +19,8 @@ If you want an LND node but have trouble setting it up with LND directly, I sugg
 
 If you'd rather not deal with getting your hands on some Bitcoin or waiting for block times to open channels, you can setup your own [simulated Lightning network cluster](https://dev.lightning.community/tutorial/01-lncli/).
 
+If you just want to fiddle around with this you can use [Polar](https://github.com/jamaljsr/polar) to setup your own local regtest network.
+
 ## Setup the Project
 
 Copy the environment configuration file with
